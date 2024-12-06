@@ -484,8 +484,12 @@ func (tm *Manager) CheckUserStatus(ctx context.Context, localCfg *config.Config)
 	}
 
 	for teamName, team := range localCfg.AllTeams {
-		excludedTeamMembers := map[string]struct{}{}
+		excludedTeamMentors := map[string]struct{}{}
+		for _, xMentor := range team.Mentors {
+			excludedTeamMentors[xMentor] = struct{}{}
+		}
 
+		excludedTeamMembers := map[string]struct{}{}
 		for _, xMember := range team.CodeReviewAssignment.ExcludedMembers {
 			excludedTeamMembers[xMember.Login] = struct{}{}
 		}
@@ -503,6 +507,11 @@ func (tm *Manager) CheckUserStatus(ctx context.Context, localCfg *config.Config)
 				continue
 			}
 			_, isExcluded = excludedTeamMembers[member]
+			if isExcluded {
+				unavailableMembers++
+				continue
+			}
+			_, isExcluded = excludedTeamMentors[member]
 			if isExcluded {
 				unavailableMembers++
 				continue
@@ -534,6 +543,11 @@ func (tm *Manager) CheckUserStatus(ctx context.Context, localCfg *config.Config)
 				_, isExcluded = excludedTeamMembers[member]
 				if isExcluded {
 					fmt.Printf(" - %s - excluded\n", member)
+					continue
+				}
+				_, isExcluded = excludedTeamMentors[member]
+				if isExcluded {
+					fmt.Printf(" - %s - mentor\n", member)
 					continue
 				}
 				fmt.Printf(" - %s - ok\n", member)
