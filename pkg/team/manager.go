@@ -530,24 +530,37 @@ func (tm *Manager) CheckUserStatus(ctx context.Context, localCfg *config.Config)
 			}
 			fmt.Printf("Team %q with %d members doesn't have enough reviewers:\n", teamName, len(team.Members))
 			for _, member := range team.Members {
+				statusString := ""
 				_, isBusy := busyMembers[member]
 				if isBusy {
-					fmt.Printf(" - %s - busy\n", member)
-					continue
+					if len(statusString) > 0 {
+						statusString = statusString + ", "
+					}
+					statusString = statusString + "busy"
 				}
 				_, isExcluded := excludedMembers[member]
 				if isExcluded {
-					fmt.Printf(" - %s - excluded\n", member)
-					continue
+					if len(statusString) > 0 {
+						statusString = statusString + ", "
+					}
+					statusString = statusString + "org_excluded"
 				}
 				_, isExcluded = excludedTeamMembers[member]
 				if isExcluded {
-					fmt.Printf(" - %s - excluded\n", member)
-					continue
+					if len(statusString) > 0 {
+						statusString = statusString + ", "
+					}
+					statusString = statusString + "team_excluded"
 				}
 				_, isExcluded = excludedTeamMentors[member]
 				if isExcluded {
-					fmt.Printf(" - %s - mentor\n", member)
+					if len(statusString) > 0 {
+						statusString = statusString + ", "
+					}
+					statusString = statusString + "team_mentor"
+				}
+				if len(statusString) > 0 {
+					fmt.Printf(" - %s - %s\n", member, statusString)
 					continue
 				}
 				fmt.Printf(" - %s - ok\n", member)
