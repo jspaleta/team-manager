@@ -32,7 +32,7 @@ var addTeamsCmd = &cobra.Command{
 			return fmt.Errorf("failed to create github client: %w", err)
 		}
 
-		cfg, err := persistence.LoadState(configFilename)
+		cfg, err := persistence.LoadState(configFilename, overrideFilename)
 		if err != nil {
 			return fmt.Errorf("failed to load local state: %w", err)
 		}
@@ -53,7 +53,7 @@ var setTeamsUsersCmd = &cobra.Command{
 	Short: "Set members of a team in local configuration",
 	Args:  cobra.MinimumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := persistence.LoadState(configFilename)
+		cfg, err := persistence.LoadState(configFilename, overrideFilename)
 		if err != nil {
 			return fmt.Errorf("failed to load local state: %w", err)
 		}
@@ -74,7 +74,7 @@ var setTeamsMentorsCmd = &cobra.Command{
 	Short: "Set mentors of a team in local configuration",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := persistence.LoadState(configFilename)
+		cfg, err := persistence.LoadState(configFilename, overrideFilename)
 		if err != nil {
 			return fmt.Errorf("failed to load local state: %w", err)
 		}

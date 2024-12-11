@@ -90,12 +90,40 @@ type Config struct {
 	// maps the team name to its config. GitHub doesn't allow duplicated team
 	// names, so we can do safely do this.
 	AllTeams map[string]*TeamConfig `json:"-" yaml:"-"`
+
+	// OverrideTeams is an index of teams in the override file
+	// maps the team name to its config. GitHub doesn't allow duplicated team
+	// names, so we can do safely do this.
+	TeamOverrides map[string]*OverrideTeamConfig `json:"-" yaml:"-"`
+}
+
+// This will hold the information from the Team Override File
+type OverrideConfig struct {
+	// Teams maps the github team name to a OverrideTeamConfig.
+	Teams map[string]*OverrideTeamConfig `json:"teams,omitempty" yaml:"teams,omitempty"`
+}
+
+// OverrideTeamConfig is intended to be made public containing only github usernames and team names
+type OverrideTeamConfig struct {
+	// Members is a list of users that belong to this team.
+	Members []string `json:"members,omitempty" yaml:"members,omitempty"`
+	// Mentors is a list of users that belong to this team that will be excluded from auto review assignments.
+	Mentors []string `json:"mentors,omitempty" yaml:"mentors,omitempty"`
 }
 
 func (c *Config) IndexTeams() {
 	allTeams := map[string]*TeamConfig{}
 	getAllTeams(c.Teams, allTeams)
+	applyTeamOverrides(c.TeamOverrides, allTeams)
 	c.AllTeams = allTeams
+
+}
+
+func applyTeamOverrides(teams map[string]*OverrideTeamConfig, allTeams map[string]*TeamConfig) {
+	for teamName, team := range teams {
+		allTeams[teamName].Members = team.Members
+		allTeams[teamName].Mentors = team.Mentors
+	}
 }
 
 func getAllTeams(teams, allTeams map[string]*TeamConfig) {
