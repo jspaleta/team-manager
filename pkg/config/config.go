@@ -121,8 +121,12 @@ func (c *Config) IndexTeams() {
 
 func applyTeamOverrides(teams map[string]*OverrideTeamConfig, allTeams map[string]*TeamConfig) {
 	for teamName, team := range teams {
-		allTeams[teamName].Members = team.Members
-		allTeams[teamName].Mentors = team.Mentors
+		if _, ok := allTeams[teamName]; ok {
+			allTeams[teamName].Members = team.Members
+			allTeams[teamName].Mentors = team.Mentors
+		} else {
+			fmt.Printf("Override Warning: team %s missing from config\n", teamName)
+		}
 	}
 }
 
